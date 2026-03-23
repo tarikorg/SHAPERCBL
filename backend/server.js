@@ -1,27 +1,46 @@
+/**
+ * COBOL File Shaper Backend Server
+ * 
+ * Entry point for Express.js application
+ * - Loads environment variables
+ * - Connects to MongoDB
+ * - Registers middleware and routes
+ * - Handles errors gracefully
+ * 
+ * Run: npm run dev (development with nodemon)
+ * Or:  npm start (production)
+ */
+
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const path = require('path');
 
-const connectDB = require('./config/database');
-
-
+// Load environment variables FIRST
 dotenv.config();
-//config from env with fallbacks
+
+// Configuration from .env (with fallbacks)
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/cobol_shaper'
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/cobol_shaper';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+// Import configuration
+const connectDB = require('./config/database');
 
-
+// Initialize Express app
 const app = express();
-//========MIDDLEWARE =========
+
+// ========== MIDDLEWARE ==========
+// Parse incoming request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
-app.use(morgan('combined'))
 
+// Enable CORS (allow React frontend to make requests)
+app.use(cors());
+
+// Log HTTP requests in Apache combined format
+app.use(morgan('combined'));
 
 // ========== SERVER STARTUP ==========
 async function startServer() {
@@ -39,23 +58,38 @@ async function startServer() {
 ║  Port: ${String(PORT).padEnd(30)}║
 ║  MongoDB: Connected              ║
 ║  Metrics: Enabled                ║
-╚════════════���═══════════════════════════╝
+╚════════════════════════════════════════╝
     `);
 
     // ========== ROUTES ==========
-    // (To be added in Phase 1)
-    // Example:
+    // To be added in Phase 1:
+    // - POST /api/schema          (create/save schema)
+    // - GET /api/schema/:id       (retrieve schema)
+    // - POST /api/transform       (transform data)
+    // - GET /api/metrics/summary  (get research metrics)
+    // Placeholder:
     // app.use('/api/schema', require('./routes/schema'));
     // app.use('/api/transform', require('./routes/transform'));
     // app.use('/api/metrics', require('./routes/metrics'));
 
+    // Health check endpoint (for testing)
+    app.get('/health', (req, res) => {
+      res.json({
+        status: 'ok',
+        environment: NODE_ENV,
+        mongodb: 'connected'
+      });
+    });
+
     // ========== ERROR HANDLING ==========
+    // Global error handler (must be registered LAST)
     app.use((err, req, res, next) => {
       console.error('❌ Error:', err.message);
       const statusCode = err.statusCode || 500;
       res.status(statusCode).json({
         success: false,
         error: err.message,
+        // Show stack trace only in development
         ...(NODE_ENV === 'development' && { stack: err.stack })
       });
     });
