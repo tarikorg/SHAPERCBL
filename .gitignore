@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+package-lock.json
+npm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# MongoDB
+data/
+*.db
+
+# COBOL compilation outputs
+*.o
+*.so
+*.exe
+validation/generated/*.cob
+validation/output/*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Research temp files
+research/temp/
+research/*.tmp
+
+# Large datasets (we'll use Git LFS later if needed)
+research/datasets/*.large
+
+# Build outputs
+dist/
+build/
+.next/

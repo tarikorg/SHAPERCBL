@@ -1,0 +1,49 @@
+{
+  "name": "cobol_shaper",
+   "version": "0.1.0",
+  "description": "Schema-driven tool for transforming JSON/CSV/XML into COBOL fixed-width files with auto-generated copybooks and GnuCOBOL validation",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "test": "jest --coverage",
+    "test:pic": "jest backend/tests/picParser.test.js --coverage",
+    "lint": "eslint backend/ frontend/src/",
+    "build": "cd frontend && npm run build"
+  },
+  "keywords": [
+    "COBOL",
+    "mainframe",
+    "fixed-width",
+    "data-transformation",
+    "copybook",
+    "modernization",
+    "research"
+  ],
+  "author": "tarikorg",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.0.0",
+    "csv-parser": "^3.0.0",
+    "xml2js": "^0.6.2",
+    "dotenv": "^16.0.3",
+    "cors": "^2.8.5",
+    "morgan": "^1.10.0",
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "jest": "^29.5.0",
+    "eslint": "^8.40.0",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tarikorg/SHAPERCBL.git"
+  }
+}
