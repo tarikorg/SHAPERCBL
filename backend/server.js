@@ -62,11 +62,18 @@ async function startServer() {
     `);
 
     // ========== ROUTES ==========
-    // To be added in Phase 1:
-    // - POST /api/schema          (create/save schema)
-    // - GET /api/schema/:id       (retrieve schema)
-    // - POST /api/transform       (transform data)
-    // - GET /api/metrics/summary  (get research metrics)
+      // Import routes
+    const schemaRouter = require('./routes/schema');
+    
+    // Register routes (all prefixed with /api)
+    app.use('/api', schemaRouter);
+    
+    // Routes now available:
+    // POST   /api/schema         (create)
+    // GET    /api/schema/:id     (read one)
+    // PUT    /api/schema/:id     (update)
+    // DELETE /api/schema/:id     (delete)
+    // GET    /api/schemas        (list all)
     // Placeholder:
     // app.use('/api/schema', require('./routes/schema'));
     // app.use('/api/transform', require('./routes/transform'));
@@ -82,17 +89,12 @@ async function startServer() {
     });
 
     // ========== ERROR HANDLING ==========
-    // Global error handler (must be registered LAST)
-    app.use((err, req, res, next) => {
-      console.error('❌ Error:', err.message);
-      const statusCode = err.statusCode || 500;
-      res.status(statusCode).json({
-        success: false,
-        error: err.message,
-        // Show stack trace only in development
-        ...(NODE_ENV === 'development' && { stack: err.stack })
-      });
-    });
+   // Import error handler middleware
+    const errorHandler = require('./middleware/errorHandler');
+    
+    // Register error handler (MUST BE LAST)
+    // Must be after all routes
+    app.use(errorHandler);
 
     // ========== START LISTENING ==========
     const server = app.listen(PORT, () => {

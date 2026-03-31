@@ -89,8 +89,7 @@ const fieldSchema = new Schema({
   // Values: "numeric" (9), "alphanumeric" (X), "decimal" (9V9), "alphabetic" (A), "signed" (S9), "comp3"
   type: {
     type: String,
-    enum: ['numeric', 'alphanumeric', 'decimal', 'alphabetic', 'signed', 'comp3'],
-    required: true
+    enum: ['numeric', 'alphanumeric', 'decimal', 'alphabetic', 'signed', 'comp3']
   },
 
   // Starting position in fixed-width line (auto-calculated by pre-save hook)
@@ -109,8 +108,7 @@ const fieldSchema = new Schema({
   // Example: "9(5)" = 5 bytes, "X(20)" = 20 bytes, "9(7)V99" = 9 bytes
   length: {
     type: Number,
-    required: true,
-    min: 1,
+    min: [1, 'length must be at least 1'],
     validate: {
       validator: Number.isInteger,
       message: 'length must be an integer'
