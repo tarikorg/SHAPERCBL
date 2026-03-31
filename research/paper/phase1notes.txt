@@ -1,0 +1,13 @@
+metrics for researcpaper => reason => target
+
+Parser accuracy   => can it correctly parse all PIC variations => 50cases 
+
+average parse time => is it fast enough for real use =>  less than 1ms per PIC
+
+position calculation accuracy => do calculated startPos match manual calculation => 5test , 100% accuracy
+
+edge case handling => does it fail gracefully on invalid input? => all edge cases gets caught and logged
+
+
+upon success, claim: 
+"Our PIC parser correctly handled 50 test cases (including 10 edge cases) with 100% accuracy and average parsing time of 0.5ms per clause."
