@@ -11,3 +11,16 @@ edge case handling => does it fail gracefully on invalid input? => all edge case
 
 upon success, claim: 
 "Our PIC parser correctly handled 50 test cases (including 10 edge cases) with 100% accuracy and average parsing time of 0.5ms per clause."
+
+
+for each 5 test datasets
+-transform each, save metrics 
+-track dataset,records fields, duration_ms, records_per_sec, errors, warnings, accuracy
+
+
+Metric	Why We Measure	What It Proves
+duration_ms	Speed	"Tool processes 1000 records in X ms"
+records_per_sec	Throughput	"5,000+ rec/sec" (claim for abstract)
+errors detected	Quality	"Caught 50 out of 50 invalid records" (95%+ recall)
+warnings	Attention to detail	"Warned about 12 truncations"
+accuracy	Correctness	"100% of output lines validated with COBOL"

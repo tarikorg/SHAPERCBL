@@ -1,0 +1,47 @@
+{
+    "name": "EMPLOYEE",
+    "description": "Employee dataset schema (5 fields) for Phase 2 benchmarking",
+    "fields": [
+        {
+            "name": "EMP_ID",
+            "picClause": "9(5)",
+            "type": "numeric",
+            "length": 5,
+            "sourceKey": "emp_id",
+            "required": true
+        },
+        {
+            "name": "NAME",
+            "picClause": "X(20)",
+            "type": "alphanumeric",
+            "length": 20,
+            "sourceKey": "name",
+            "required": true
+        },
+        {
+            "name": "DEPT",
+            "picClause": "X(10)",
+            "type": "alphanumeric",
+            "length": 10,
+            "sourceKey": "dept",
+            "required": true
+        },
+        {
+            "name": "HIRE_DATE",
+            "picClause": "9(8)",
+            "type": "numeric",
+            "length": 8,
+            "sourceKey": "hire_date",
+            "required": true
+        },
+        {
+            "name": "SALARY",
+            "picClause": "9(7)V99",
+            "type": "decimal",
+            "length": 9,
+            "decimals": 2,
+            "sourceKey": "salary",
+            "required": true
+        }
+    ]
+}
