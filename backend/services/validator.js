@@ -158,8 +158,9 @@ function validateRecord(record, fdSchema, recordIndex = null) {
         );
       }
 
-      // Warning if rounding occurred (helps "real-time error detection" and metrics)
-      if (Math.abs(scaled - (n * factor)) > 0) {
+     // Only warn when rounding is meaningful (avoid IEEE-754 noise)
+      const EPS = 1e-9;
+      if (Math.abs(scaled - (n * factor)) > EPS) {
         warnings.push(`${prefix}: Field "${fieldName}" rounding will occur for value "${value}" with decimals=${decimals}`);
       }
 

@@ -135,8 +135,12 @@ function formatDecimal(rawValue, length, decimals) {
   const factor = Math.pow(10, decimals);
   const scaled = n * factor;
 
-  const rounded = Math.round(scaled);
-  if (Math.abs(rounded - scaled) > 0) {
+const rounded = Math.round(scaled);
+
+  // IEEE-754 floating point can produce tiny imprecision (e.g., 2.55*100 = 254.99999999999997).
+  // Use an epsilon so we only warn when rounding is meaningful (not floating-point noise).
+  const EPS = 1e-9;
+  if (Math.abs(rounded - scaled) > EPS) {
     warnings.push(`Rounding applied: ${n} scaled to ${scaled} rounded to ${rounded}`);
   }
 

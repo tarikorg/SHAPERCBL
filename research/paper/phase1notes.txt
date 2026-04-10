@@ -24,3 +24,42 @@ records_per_sec	Throughput	"5,000+ rec/sec" (claim for abstract)
 errors detected	Quality	"Caught 50 out of 50 invalid records" (95%+ recall)
 warnings	Attention to detail	"Warned about 12 truncations"
 accuracy	Correctness	"100% of output lines validated with COBOL"
+
+
+What the diagnostics prove (paper-ready interpretation)
+1) Small dataset warnings (4 total, all “rounding”)
+
+From your diagnostics:
+
+    SALARY values like 68000.9 and 79999.99 produce rounding warnings because JS floating-point scaling gives values like:
+        68000.9 * 100 = 6800089.999999999
+        79999.99 * 100 = 7999999.000000001
+
+This is not a data problem—it’s a JavaScript floating point representation issue.
+
+Research implication: If you leave this as-is, your warning counts may be inflated by implementation artifacts (threat to validity). We should fix it so warnings represent real rounding (e.g., input had too many decimal places), not IEEE-754 noise.
+2) Large dataset warnings (200 total, all “rounding”)
+
+Same root cause. LAST_RAISE values such as 2.55 lead to:
+
+    2.55 * 100 = 254.99999999999997
+
+So the pipeline warns about rounding even when the input is already “2 decimal places”. Again, this is IEEE-754.
+3) Edge dataset
+
+Perfect: this is exactly what the roadmap wants.
+
+    1 overflow error for SALARY = 10000000.00 (exceeds 9(7)V99)
+    warnings for:
+        newline removal
+        truncation on EMAIL and DEPT
+        rounding on BONUS (12.3456 → rounds)
+
+This becomes your “error detection matrix” example for RQ3.
+4) Invalid dataset
+
+Also perfect:
+
+    7 errors detected across type mismatch, overflow, missing required, and negative decimals
+
+This directly supports RQ3: “% invalid data caught”.
