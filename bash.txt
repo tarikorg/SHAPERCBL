@@ -1,0 +1,11 @@
+node - <<'NODE'
+const { transform } = require('./backend/services/transformer');
+const schema = require('./research/datasets/schemas/employee_10.json');
+const records = require('./research/datasets/data/format1000.json');
+
+const r = transform(records, schema, 'json');
+console.log('recordsProcessed', r.metrics.recordsProcessed);
+console.log('errorsDetected.length', r.metrics.errorsDetected.length);
+console.log('warningsDetected.length', r.metrics.warningsDetected.length);
+console.log('firstWarningEntry', r.metrics.warningsDetected[0]);
+NODE

@@ -7,6 +7,7 @@ npm-debug.log*
 .env
 .env.local
 .env.*.local
+research/paper
 
 # MongoDB
 data/

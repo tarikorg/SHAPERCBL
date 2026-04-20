@@ -49,6 +49,34 @@ function isNumericString(s) {
 }
 
 /**
+ * Determine whether a decimal value would require rounding when represented
+ * with a fixed number of implied decimals (COBOL PIC V semantics).
+ *
+ * This function avoids IEEE-754 floating point artifacts by operating on strings.
+ */
+function hasRoundingRisk(rawValue, decimals) {
+  if (rawValue === null || rawValue === undefined) return false;
+  if (!Number.isInteger(decimals) || decimals < 0) return false;
+
+  const s = String(rawValue).trim();
+  if (s === '') return false;
+
+  // Strip leading sign for analysis (sign rules handled elsewhere)
+  const unsigned = s.startsWith('-') ? s.slice(1) : s;
+
+  const parts = unsigned.split('.');
+  if (parts.length === 1) return false; // integer => no rounding risk
+
+  const frac = parts[1] || '';
+  if (frac.length <= decimals) return false;
+
+  // If there are extra digits beyond schema decimals:
+  // rounding is only needed if any extra digit is non-zero.
+  const extra = frac.slice(decimals);
+  return /[1-9]/.test(extra);
+}
+
+/**
  * Validate a single record against the schema.
  *
  * @param {Object} record - One input record (e.g., one JSON object from array)
@@ -159,8 +187,7 @@ function validateRecord(record, fdSchema, recordIndex = null) {
       }
 
      // Only warn when rounding is meaningful (avoid IEEE-754 noise)
-      const EPS = 1e-9;
-      if (Math.abs(scaled - (n * factor)) > EPS) {
+     if (hasRoundingRisk(value, decimals)) {
         warnings.push(`${prefix}: Field "${fieldName}" rounding will occur for value "${value}" with decimals=${decimals}`);
       }
 

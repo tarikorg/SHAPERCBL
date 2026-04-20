@@ -101,6 +101,68 @@ function formatAlphanumeric(rawValue, length) {
 }
 
 /**
+ * Convert a raw decimal input into a base-10 "scaled digits" string representing
+ * an implied-decimal COBOL value (PIC ...V...).
+ *
+ * Example: raw="131200.86", decimals=2 => { digits: "13120086", rounding: false }
+ * Example: raw="58000.1234", decimals=2 => { digits: "5800012", rounding: true }  (extra digits discarded)
+ *
+ * This is intentionally string-based to avoid IEEE-754 floating point artifacts.
+ */
+function scaleDecimalString(rawValue, decimals) {
+  const errors = [];
+  const warnings = [];
+
+  if (rawValue === null || rawValue === undefined || rawValue === '') {
+    warnings.push('Decimal field missing; defaulting to 0');
+    rawValue = '0';
+  }
+
+  const s = String(rawValue).trim();
+
+  // Scientific notation is not supported (e.g., "1.23e5").
+  // This keeps behavior aligned with validator expectations and avoids ambiguity.
+  if (/[eE]/.test(s)) {
+    errors.push(`Expected decimal number, got "${rawValue}"`);
+    return { digits: '0', errors, warnings, rounding: false };
+  }
+
+  // Only digits with optional single decimal point; optional leading "+" allowed.
+  // (We still reject negatives in Phase 2 below.)
+  if (!/^[+-]?\d+(\.\d+)?$/.test(s)) {
+    errors.push(`Expected decimal number, got "${rawValue}"`);
+    return { digits: '0', errors, warnings, rounding: false };
+  }
+
+  if (s.startsWith('-')) {
+    errors.push(`Negative decimals not supported yet: "${s}"`);
+    return { digits: '0', errors, warnings, rounding: false };
+  }
+
+  const unsigned = s.startsWith('+') ? s.slice(1) : s;
+  const [intPartRaw, fracPartRaw = ''] = unsigned.split('.');
+
+  const intPart = intPartRaw.replace(/^0+(?=\d)/, '') || '0';
+  let fracPart = fracPartRaw;
+
+  // Determine whether we are discarding any non-zero fractional digits beyond schema precision.
+  let rounding = false;
+  if (fracPart.length > decimals) {
+    const extra = fracPart.slice(decimals);
+    rounding = /[1-9]/.test(extra);
+    fracPart = fracPart.slice(0, decimals);
+  }
+
+  // Right-pad fractional part to the required implied decimals.
+  if (fracPart.length < decimals) {
+    fracPart = fracPart.padEnd(decimals, '0');
+  }
+
+  const digits = (intPart + fracPart).replace(/^0+(?=\d)/, '') || '0';
+  return { digits, errors, warnings, rounding };
+}
+
+/**
  * Format decimal PIC 9(n)V.. as fixed-width digits with implied decimal point.
  * Strategy:
  * - Multiply by 10^decimals
@@ -121,42 +183,35 @@ function formatDecimal(rawValue, length, decimals) {
     return makeResult('0'.repeat(length), errors, warnings);
   }
 
-  if (rawValue === null || rawValue === undefined || rawValue === '') {
-    warnings.push('Decimal field missing; defaulting to 0');
-    rawValue = 0;
-  }
+  const scaled = scaleDecimalString(rawValue, decimals);
+  errors.push(...scaled.errors);
+  warnings.push(...scaled.warnings);
 
-  const n = typeof rawValue === 'number' ? rawValue : Number(String(rawValue).trim());
-  if (!Number.isFinite(n)) {
-    errors.push(`Expected decimal number, got "${rawValue}"`);
+  if (scaled.errors.length > 0) {
     return makeResult('0'.repeat(length), errors, warnings);
   }
 
-  const factor = Math.pow(10, decimals);
-  const scaled = n * factor;
-
-const rounded = Math.round(scaled);
-
-  // IEEE-754 floating point can produce tiny imprecision (e.g., 2.55*100 = 254.99999999999997).
-  // Use an epsilon so we only warn when rounding is meaningful (not floating-point noise).
-  const EPS = 1e-9;
-  if (Math.abs(rounded - scaled) > EPS) {
-    warnings.push(`Rounding applied: ${n} scaled to ${scaled} rounded to ${rounded}`);
+  // Warn only when rounding is REAL (extra fractional digits beyond schema had non-zero values).
+  if (scaled.rounding) {
+    warnings.push(
+      `Rounding applied: "${String(rawValue).trim()}" truncated to ${decimals} decimals for PIC implied-decimal formatting`
+    );
   }
 
-  if (rounded < 0) {
-    errors.push(`Negative decimals not supported yet: "${n}"`);
+  if (scaled.digits.startsWith('-')) {
+    // Defensive: should never happen because scaleDecimalString rejects negatives.
+    errors.push(`Negative decimals not supported yet: "${scaled.digits}"`);
     return makeResult('0'.repeat(length), errors, warnings);
   }
 
-  const digits = String(rounded);
-
-  if (digits.length > length) {
-    errors.push(`Overflow: "${n}" requires ${digits.length} digits but field length is ${length}`);
+  if (scaled.digits.length > length) {
+    errors.push(
+      `Overflow: "${String(rawValue).trim()}" requires ${scaled.digits.length} digits but field length is ${length}`
+    );
     return makeResult('9'.repeat(length), errors, warnings);
   }
 
-  const padded = leftPad(digits, length, '0');
+  const padded = leftPad(scaled.digits, length, '0');
   return makeResult(padded, errors, warnings);
 }
 

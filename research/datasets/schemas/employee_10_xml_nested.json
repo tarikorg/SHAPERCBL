@@ -1,0 +1,98 @@
+{
+    "name": "EMPLOYEE",
+    "description": "Employee dataset schema (10 fields) with xmlPath mappings for nested XML (Employees.Employee)",
+    "fields": [
+        {
+            "name": "EMP_ID",
+            "picClause": "9(5)",
+            "type": "numeric",
+            "length": 5,
+            "sourceKey": "emp_id",
+            "xmlPath": "@id",
+            "required": true
+        },
+        {
+            "name": "NAME",
+            "picClause": "X(20)",
+            "type": "alphanumeric",
+            "length": 20,
+            "sourceKey": "name",
+            "xmlPath": "Name",
+            "required": true
+        },
+        {
+            "name": "DEPT",
+            "picClause": "X(10)",
+            "type": "alphanumeric",
+            "length": 10,
+            "sourceKey": "dept",
+            "xmlPath": "Dept.@code",
+            "required": true
+        },
+        {
+            "name": "HIRE_DATE",
+            "picClause": "9(8)",
+            "type": "numeric",
+            "length": 8,
+            "sourceKey": "hire_date",
+            "xmlPath": "Hire.Date",
+            "required": true
+        },
+        {
+            "name": "SALARY",
+            "picClause": "9(7)V99",
+            "type": "decimal",
+            "length": 9,
+            "decimals": 2,
+            "sourceKey": "salary",
+            "xmlPath": "Comp.Salary",
+            "required": true
+        },
+        {
+            "name": "PHONE",
+            "picClause": "9(10)",
+            "type": "numeric",
+            "length": 10,
+            "sourceKey": "phone",
+            "xmlPath": "Contact.Phone",
+            "required": true
+        },
+        {
+            "name": "EMAIL",
+            "picClause": "X(25)",
+            "type": "alphanumeric",
+            "length": 25,
+            "sourceKey": "email",
+            "xmlPath": "Contact.Email",
+            "required": true
+        },
+        {
+            "name": "STATE",
+            "picClause": "X(2)",
+            "type": "alphanumeric",
+            "length": 2,
+            "sourceKey": "state",
+            "xmlPath": "Contact.State",
+            "required": true
+        },
+        {
+            "name": "BONUS",
+            "picClause": "9(5)V99",
+            "type": "decimal",
+            "length": 7,
+            "decimals": 2,
+            "sourceKey": "bonus",
+            "xmlPath": "Comp.Bonus",
+            "required": true
+        },
+        {
+            "name": "ACTIVE",
+            "picClause": "X(1)",
+            "type": "alphanumeric",
+            "length": 1,
+            "sourceKey": "active",
+            "xmlPath": "@active",
+            "required": true
+        }
+    ]
+}
